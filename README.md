@@ -2,15 +2,9 @@
 
 ## Overview
 
-This project implements a **Multi-Scale Visual Question Answering (VQA)
-framework** for **post-disaster damage assessment using aerial
-imagery**.
+Existing Visual Question Answering (VQA) methods for post-disaster imagery often struggle with capturing both global context and fine-grained local damage details. Many models either process the entire image at a coarse resolution, missing small but critical damage features, or focus only on local patches without integrating global scene information. This can lead to inaccurate or incomplete answers for disaster assessment tasks.
 
-The model combines: - Global scene understanding - Local patch-based
-visual reasoning - Natural language question encoding
-
-The system answers questions about disaster damage by jointly analyzing
-**images and text queries**.
+To address these limitations, we propose a multi-scale VQA framework that combines global scene understanding with local patch-based reasoning. Our model uses a global image encoder and four local decoder blocks processing overlapping patches with shared weights. Local features are reassembled spatially and fused with global features to create a comprehensive representation. A pretrained text encoder processes input questions, and an LSTM decoder generates the final answer. This approach effectively captures both coarse and detailed information, providing robust and accurate answers for post-disaster damage assessment.
 
 ------------------------------------------------------------------------
 
