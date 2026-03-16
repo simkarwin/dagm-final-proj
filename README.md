@@ -109,6 +109,12 @@ For training and evaluation, we utilize the FloodNet dataset, a publicly availab
 
 ------------------------------------------------------------------------
 
+## Baseline
+
+Baseline model includes only one image encoder block. This block is responsible to extract all required semantic features from the visual input.
+
+------------------------------------------------------------------------
+
 ## References / Related Work
 
 - Lin, T.-Y., Dollár, P., Girshick, R., He, K., Hariharan, B., & Belongie, S. (2017). 
