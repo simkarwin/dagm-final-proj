@@ -83,6 +83,12 @@ and fed into an **LSTM decoder**, which generates the final answer.
 
 ------------------------------------------------------------------------
 
+## Data
+
+For training and evaluation, we utilize the FloodNet dataset, a publicly available remote sensing dataset containing high-resolution aerial and satellite imagery of flood-affected areas. FloodNet provides pixel-level semantic annotations for various damage categories including buildings, roads, and vegetation. This dataset enables our multi-scale VQA model to learn both global flood patterns and localized damage details, making it particularly suitable for post-disaster assessment research. By leveraging FloodNet, the model can generate accurate, context-aware answers to questions about flood impact, infrastructure damage, and affected areas.
+
+------------------------------------------------------------------------
+
 ## Project Structure
 
     project/
