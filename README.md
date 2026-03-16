@@ -83,9 +83,6 @@ and fed into an **LSTM decoder**, which generates the final answer.
 
 ------------------------------------------------------------------------
 
-
-------------------------------------------------------------------------
-
 ## Project Structure
 
     project/
@@ -97,6 +94,8 @@ and fed into an **LSTM decoder**, which generates the final answer.
     │   └── vqa_model.py
     │
     ├── data/
+    │   ├── images/
+    │   └── Questions.json
     ├── train.py
     ├── inference.py
     └── README.md
