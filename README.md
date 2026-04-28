@@ -12,6 +12,11 @@ Our approach integrates:
 - Cross-attention-based feature fusion
 - Pretrained vision and language encoders (ResNet-50 + BERT)
 
+
+Report link:
+https://www.overleaf.com/read/gcygzvjbxvnb#2e51ab
+Dataset link:
+https://www.kaggle.com/datasets/aletbm/aerial-imagery-dataset-floodnet-challenge?select=FloodNet+Challenge+-+Track+2
 ---
 
 ## Model Architecture
