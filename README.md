@@ -2,128 +2,177 @@
 
 ## Overview
 
-Existing Visual Question Answering (VQA) methods for post-disaster imagery often struggle with capturing both global context and fine-grained local damage details. Many models either process the entire image at a coarse resolution, missing small but critical damage features, or focus only on local patches without integrating global scene information. This can lead to inaccurate or incomplete answers for disaster assessment tasks.
+Rapid understanding of post-disaster aerial imagery is essential for supporting emergency response and damage assessment. However, existing Visual Question Answering (VQA) systems often struggle to jointly capture global scene context and fine-grained local damage patterns in UAV imagery. Models that rely only on global features miss small but critical details, while patch-based approaches often lose overall spatial context.
 
-To address these limitations, we propose a multi-scale VQA framework that combines global scene understanding with local patch-based reasoning. Our model uses a global image encoder and four local decoder blocks processing overlapping patches with shared weights. Local features are reassembled spatially and fused with global features to create a comprehensive representation. A pretrained text encoder processes input questions, and an LSTM decoder generates the final answer. This approach effectively captures both coarse and detailed information, providing robust and accurate answers for post-disaster damage assessment.
+To address these challenges, we propose a **multi-scale Vision-Language VQA framework** for post-disaster analysis. The model formulates VQA as a **classification problem over a fixed answer space**, ensuring stable, consistent, and interpretable outputs suitable for high-risk environments.
 
-------------------------------------------------------------------------
+Our approach integrates:
+- Global image representations
+- Local region-level crops
+- Cross-attention-based feature fusion
+- Pretrained vision and language encoders (ResNet-50 + BERT)
+
+---
 
 ## Model Architecture
 
-### 1. Image Feature Extractor
-#### Multi-Scale Image Decoder Blocks
+### 1. Visual Encoder (ResNet-50 Backbone)
 
-The architecture includes **five decoder blocks**:
+We use a pretrained ResNet-50 model to extract deep visual features from input images:
 
--   **1 Global Decoder**
-    -   Processes the entire image.
--   **4 Local Decoders**
-    -   Each decoder receives **one quarter of the image**.
-    -   Adjacent patches include **small overlaps** to preserve boundary
-        information.
+- The full image is used to capture global context
+- The final classification layer is removed
+- Features are projected into a shared embedding space using a 1×1 convolution
 
-All decoder blocks **share the same weights**, which improves: -
-parameter efficiency - generalization - consistent feature extraction
-across spatial regions
+---
 
-#### Feature Aggregation
+### 2. Multi-Scale Local Feature Extraction
 
-The outputs of the four local decoder blocks are:
+Each image is divided into **four overlapping crops**:
+- Top-left
+- Top-right
+- Bottom-left
+- Bottom-right
 
--   Reassembled spatially along X and Y axes to reconstruct a feature map representing the full image.
+Each crop is processed using a **shared-weight ResNet encoder**, ensuring:
+- Parameter efficiency
+- Consistent feature extraction
+- Robust spatial representation
 
--   Fused with the global image representation extracted from the full image.
+---
 
-This produces a **multi-scale visual feature representation** that preserves both:
+### 3. Global–Local Cross-Attention Fusion
 
-- Local spatial details from the patches
+We apply cross-attention to combine global and local features:
 
-- Global context from the entire image
+- Global features → Key / Value
+- Local crop features → Query
 
-------------------------------------------------------------------------
+This enables each region to attend to relevant global context, improving fine-grained reasoning.
 
-### 2. Text Encoder
+---
 
-A **pretrained text encoder** converts the input question into a
-semantic embedding.
+### 4. Text Encoder (BERT)
+
+Questions are encoded using a pretrained **BERT model**.
+
+- The `[CLS]` token embedding is used as the sentence representation
+- The embedding is projected into a shared multimodal space
 
 Example questions:
+- "How many buildings are flooded?"
+- "What is the condition of the road?"
+- "Is the area heavily damaged?"
 
--   "How many buildings are in this image?"
--   "What is the overall condition of the given image?"
--   "What is the condition of road?"
+---
 
-------------------------------------------------------------------------
+### 5. Vision–Language Fusion
 
-### 4. Answer Generation
+A cross-attention mechanism aligns:
+- Text features (Query)
+- Visual features (Key/Value)
 
-The fused **visual representation** and **text embedding** are passed from cross attentions layer
-and fed into an **LSTM decoder**, which generates the final answer.
+This allows question-guided visual reasoning.
 
-------------------------------------------------------------------------
+---
+
+### 6. Classification Head
+
+The fused representation is passed through an MLP classifier:
+
+- Output = probability distribution over predefined answers
+- Ensures stable and interpretable predictions
+
+---
 
 ## Pipeline
 
-1.  Input aerial image
-2.  Split image into four overlapping patches
-3.  Process:
-    -   Full image through global decoder
-    -   Patches through shared-weight local decoders
-4.  Concatenate local features
-5.  Fuse with global image features
-6.  Encode question using pretrained text encoder
-7.  Combine visual and textual embeddings
-8.  Generate answer using LSTM
+1. Input UAV image  
+2. Extract global features using ResNet-50  
+3. Split image into 4 overlapping crops  
+4. Encode crops using shared ResNet encoder  
+5. Apply cross-attention (global ↔ local)  
+6. Encode question using BERT  
+7. Apply cross-attention (text ↔ image)  
+8. Fuse multimodal features  
+9. Predict answer using classification head  
 
-------------------------------------------------------------------------
+---
 
 ## Data
 
-For training and evaluation, we utilize the FloodNet dataset, a publicly available remote sensing dataset containing high-resolution aerial and satellite imagery of flood-affected areas. FloodNet provides pixel-level semantic annotations for various damage categories including buildings, roads, and vegetation. This dataset enables our multi-scale VQA model to learn both global flood patterns and localized damage details, making it particularly suitable for post-disaster assessment research. By leveraging FloodNet, the model can generate accurate, context-aware answers to questions about flood impact, infrastructure damage, and affected areas.
+We use the **FloodNet dataset**, a UAV-based dataset for flood disaster analysis.
 
-------------------------------------------------------------------------
+It includes:
+- High-resolution aerial images
+- Semantic segmentation labels
+- Visual Question Answering (VQA) pairs
+
+### Preprocessing:
+- Normalize text (lowercase, clean spacing)
+- Encode answers using label encoding
+- Fit label encoder only on training set
+- Remove unseen answers in validation/test splits
+
+---
 
 ## Project Structure
+project/
+│
+├── data/
+│ └── readme_data.md
+│
+├── main.py (vanilla model)
+├── inference.py
+├── utils.py
+└── README.md
 
-    project/
-    │
-    ├── models/
-    │   ├── image_encoder.py
-    │   ├── shared_space.py
-    │   ├── text_encoder.py
-    │   └── vqa_model.py
-    │
-    ├── data/
-    │   ├── images/
-    │   └── Questions.json
-    ├── train.py
-    ├── inference.py
-    └── README.md
 
-------------------------------------------------------------------------
+---
 
 ## Applications
 
--   Post-disaster damage assessment
--   Humanitarian response support
+- Post-disaster damage assessment  
+- Flood impact analysis  
+- Infrastructure monitoring  
+- Humanitarian response support  
 
-------------------------------------------------------------------------
+---
 
-## Baseline
+## Baseline Models
 
-Baseline model includes only one image encoder block. This block is responsible to extract all required semantic features from the visual input.
+We compare against:
 
-------------------------------------------------------------------------
+### Vanilla Concatenation
+- Global image features + text + concatenation
 
-## References / Related Work
+### Global Cross-Attention
+- Global image features + text + cross-attention
 
-- Lin, T.-Y., Dollár, P., Girshick, R., He, K., Hariharan, B., & Belongie, S. (2017). 
-  *Feature Pyramid Networks for Object Detection*. 
-  In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2117–2125.
+### Proposed Multi-Scale Model
+- Global + local + cross-attention fusion  + text + cross-attention
 
-- Argho Sarkar, Tashnim J. Shovon Chowdhury, Robin Roberson Murphy, Aryya Gangopadhyay, and Maryam Rahnemoonfar,  
-  *SAM‑VQA: Supervised Attention‑Based Visual Question Answering Model for Post‑Disaster Damage Assessment on Remote Sensing Imagery*,  
-  IEEE Transactions on Geoscience and Remote Sensing, 2023. 
-  DOI: [10.1109/TGRS.2023.3276293](https://ieeexplore.ieee.org/document/10124393)
+---
+
+## Key Contributions
+
+- Multi-scale visual representation (global + local crops)  
+- Cross-attention-based multi-scale fusion  
+- Classification-based VQA formulation for stability  
+- Improved robustness on UAV disaster imagery  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
