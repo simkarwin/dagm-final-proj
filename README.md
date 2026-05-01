@@ -16,7 +16,7 @@ Our approach integrates:
 ---
 
 ## Model Architecture
-
+![Model Architecture](images/Model_architecture.png)
 ### 1. Visual Encoder (ResNet-50 Backbone)
 
 We use a pretrained **ResNet-50** model to extract deep visual features from input images.
@@ -116,10 +116,24 @@ It includes:
 
 ### Preprocessing
 
-- Normalize text (lowercase, clean spacing)
-- Encode answers using label encoding
-- Fit the label encoder only on the training set
-- Remove unseen answers in validation and test splits
+<p align="center">
+  <img src="images/preprocessing.png" alt="Data Preprocessing Pipeline" width="800"/>
+</p>
+
+#### Image preprocessing
+- Split each input UAV image into four overlapping local crops:
+  - Top-left
+  - Top-right
+  - Bottom-left
+  - Bottom-right
+- Resize the original image and all local crops to the encoder input resolution
+- Apply image normalization before feature extraction
+
+#### Text preprocessing
+- Normalize question text (lowercase, remove extra spaces)
+- Encode answer labels using label encoding
+- Fit the label encoder only on the training split
+- Remove unseen answer classes from validation and test splits
 
 ---
 
